@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override');
 
-const {login, refresh} = require('./jwt');
+const {login, refresh, verify} = require('./jwt');
 
 const multer = require("multer");;
 const GridFsStorage = require("multer-gridfs-storage");
@@ -81,15 +81,15 @@ app.get("/",(res)=>{
 
 app.post("/login", login);
 
-app.get("/panel", refresh, (req,res)=>{
+app.get("/panel", verify, (req,res)=>{
   res.sendFile( __dirname + "/pages/panel.html");
 });
 
-app.post('/upload', refresh, upload.single('file'), (req, res) => {
+app.post('/upload', verify, upload.single('file'), (req, res) => {
   res.redirect('back');
 });
 
-app.get('/files', refresh, (req, res) => {
+app.get('/files', verify, (req, res) => {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
@@ -102,7 +102,7 @@ app.get('/files', refresh, (req, res) => {
     });
   });
 
-app.get('/files/:filename', refresh, (req, res) => {
+app.get('/files/:filename', verify, (req, res) => {
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -115,7 +115,7 @@ app.get('/files/:filename', refresh, (req, res) => {
     });
   });
 
-app.get('/video/:filename', refresh, (req, res) => {
+app.get('/video/:filename', verify, (req, res) => {
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -136,7 +136,7 @@ app.get('/video/:filename', refresh, (req, res) => {
     });
   });
 
-app.delete('/files/:id', refresh, (req, res) => {
+app.delete('/files/:id', verify, (req, res) => {
     gfs.remove({ _id: req.params.id, root: 'videos' }, (err, gridStore) => {
       if (err) {
         return res.status(404).json({ err: err });
