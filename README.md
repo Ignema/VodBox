@@ -10,6 +10,8 @@ Video Management Console
   docker run --name <NAME_OF_CONTAINER> -p 27017:27017 mongo
   ```
  
+ *Note: you can alternatively find a mongodb hosting solution online and get the mongo URI from it without needing docker*
+ 
 ## 2. Create a .env file in the main project folder and paste and fill in the parameters with you **custom** data
 ```
   ACCESS_TOKEN_SECRET=
