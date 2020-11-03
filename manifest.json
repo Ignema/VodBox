@@ -1,0 +1,16 @@
+{
+    "name": "VodBox",
+    "short_name": "VodBox",
+    "icons": [
+        {
+            "src": "assets/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }        
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#2c3e50",
+    "theme_color": "#3cbcf7"
+}

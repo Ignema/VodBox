@@ -9,11 +9,12 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Admin Panel</title>
+    <title>Console</title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles/panel.css" />
-    <script src="https://unpkg.com/ionicons@5.1.2/dist/ionicons.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule="" src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
@@ -33,14 +34,14 @@
         </div>
         <div id="buttons">
             <ion-icon class="button" name="search" style="background-color: #2980b9;"></ion-icon>
-            <ion-icon class="button" name="add-circle" style="background-color: #e74c3c;"></ion-icon>
+            <ion-icon  id="upload" class="button" name="add-circle" style="background-color: #e74c3c;"></ion-icon>
             <ion-icon class="button" name="hammer" style="background-color: #f39c12;"></ion-icon>
             <a href="/"><ion-icon class="button" name="arrow-undo" style="background-color: #27ae60;"></ion-icon></a>
         </div>
     </div>
 
     <div id="videos">
-        <div id="video">
+        <!-- <div id="video">
             <div id="thumbnail"><ion-icon name="image"></ion-icon></div>
            
             <div id="video-title">Video Title</div>
@@ -55,11 +56,24 @@
             <ion-icon id="play" name="play"></ion-icon>
             <ion-icon id="close" name="close"></ion-icon>
       
-        </div>
-        
-        
+        </div> -->
     </div>
-    <script src="" async defer></script>
-</body>
 
+    <!-- The Modal -->
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <ion-icon class="close" name="close-circle"></ion-icon>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input class="file" type="file" id="file" name="file" accept="video/*">
+        <input class="submit" value="submit" type="submit">
+      </form>
+    </div>
+    
+  </div>
+
+ 
+  <script src="../scripts/panel.js" ></script>
+</body>
 </html>
