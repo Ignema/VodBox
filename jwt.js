@@ -16,7 +16,7 @@ exports.login = function(req, res){
     let password = req.body.password
     
     // Neither do this!
-    if (!username || !password || users[username].password !== password){
+    if (!username || !password || !users[username] || users[username].password !== password){
         return res.status(401).send()
     }
 
@@ -77,7 +77,7 @@ exports.refresh = function (req, res){
     })
 
     res.cookie("jwt", newToken, {secure: true, httpOnly: true})
-    res.redirect("/panel")
+    res.send()
 }
 
 exports.verify = function(req, res, next){
@@ -97,6 +97,6 @@ exports.verify = function(req, res, next){
     }
     catch(e){
         //if an error occured return request unauthorized error
-        return res.redirect("/refresh");
+        return res.status(401).send()
     }
 }

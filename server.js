@@ -81,6 +81,8 @@ app.get("/",(res)=>{
 
 app.post("/login", login);
 
+app.post("/refresh", refresh);
+
 app.get("/panel", verify, (req,res)=>{
   res.sendFile( __dirname + "/pages/panel.html");
 });

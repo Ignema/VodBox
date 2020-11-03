@@ -456,7 +456,14 @@ margin-right: 1rem;
       flex-direction: column;
       justify-content: space-around;
       height: 35vh;
+      margin-top: 3rem;
       align-items: center;
+    }
+    #title{
+      text-align: center;
+    }
+    #buttons{
+      padding: 2rem;
     }
     #video{
       flex-direction: column;

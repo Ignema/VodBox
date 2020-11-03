@@ -54,7 +54,7 @@ h5{
 }
 
 img{
-    margin-top: 1rem;
+    margin-top: 6rem;
     width: 100px;
 }
 
@@ -134,5 +134,8 @@ button{
 
     input{
         width: 70vw;
+    }
+    #txt{
+        margin-bottom: 3rem;
     }
 }
