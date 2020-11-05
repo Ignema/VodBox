@@ -99,6 +99,7 @@ exports.verify = function(req, res, next){
         //if an error occured return request unauthorized error
         return res.status(401).send()
     }
+    // next();
 }
 
 exports.skip = function(req, res, next){

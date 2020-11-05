@@ -3,6 +3,7 @@ require('dotenv').config()
 
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt"); // Will be used in /register
 const mongoose = require('mongoose');
@@ -17,7 +18,6 @@ const multer = require("multer");;
 const GridFsStorage = require("multer-gridfs-storage");
 const Grid = require('gridfs-stream');
 
-const monq = require('monq');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -64,15 +64,7 @@ const storage = new GridFsStorage({
  
 const upload = multer({ storage });
 
-// -----------------------------------------
 
-const client = monq(mongoURI);
-
-let queue = client.queue('uploads');
- 
-queue.enqueue('upload');
-
-// -----------------------------------------
 
 app.use(express.static(__dirname));
 app.use(bodyParser.json())
@@ -94,15 +86,15 @@ app.get("/panel", verify, (req,res)=>{
   res.sendFile( __dirname + "/pages/panel.html");
 });
 
-app.post('/upload', verify, (req, res) => {
-  let worker = client.worker(['uploads']);
-  worker.register({
-      upload: function (params, callback) {
-            upload.single('file')(req, res, ()=>{});
-            res.redirect("back");
-      }
-  }); 
-  worker.start();
+app.post('/upload', verify, upload.single('file'), (req, res) => {
+  // fs.writeFile('helloworld.txt', 'Hello World!', function (err) {
+  //   if (err) return console.log(err);
+  //   console.log('Hello World > helloworld.txt');
+  // });
+  //  console.log("upload route fired");
+  //  console.log(req.body);
+  //  res.send(req.body);
+  res.redirect("back");
 });
 
 app.get('/files', verify, (req, res) => {
@@ -205,3 +197,5 @@ app.delete('/files/:id', verify, (req, res) => {
 app.listen(port,()=>{
     console.log(`Server listening on port ${port}...`)
 });
+
+app.keepAliveTimeout = 15 * 60 * 1000;

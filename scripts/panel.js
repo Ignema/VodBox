@@ -34,7 +34,7 @@ file.onchange = function () {
 
     let input = this.files[0];
 
-    if (input) {
+    if (input && input.length !== 0) {
 
         if(input.size > allowed_size_mb*1024*1024) {
 			alert('Error : Exceeded size');
@@ -53,8 +53,38 @@ file.onchange = function () {
 
 };
 
-form.onsubmit = () => {
+// function UploadVideo(f) {
+//     var loaded = 0;
+//     var chunkSize = 500000;
+//     var total = f.size;
+//     var reader = new FileReader();
+//     var slice = f.slice(0, chunkSize);
+            
+//     // Reading a chunk to invoke the 'onload' event
+//     reader.readAsBinaryString(slice); 
+//     console.log('Started uploading file "' + f.name + '"');
+        
+//     reader.onload = async function (e) {
 
+//         await fetch( "/upload", {
+//         method: 'POST',
+//         body: slice,
+//         }).then(()=>{
+//             loaded = loaded + chunkSize;
+//             var percentLoaded = Math.min((loaded / total) * 100, 100);
+//             console.log('Uploaded ' + Math.floor(percentLoaded) + '% of file "' + file.name + '"');
+//             if (loaded <= total) {
+//                 slice = f.slice(loaded, loaded + chunkSize);
+//                 reader.readAsBinaryString(slice);
+//          } else { 
+//             loaded = total;
+//               console.log('File "' + f.name + '" uploaded successfully!');
+//               }
+//         });
+//     }
+// }
+
+form.onsubmit = () => {
     Array.from(document.body.children).forEach((child)=>{
         child.style.display="none";
     })
@@ -62,7 +92,9 @@ form.onsubmit = () => {
     document.body.style.background = "#454a59";
     let loading = document.createElement("div");
     loading.id = "loading";
-    document.body.appendChild(loading);    
+    document.body.appendChild(loading); 
+
+    // UploadVideo(file.files[0]);
 }
 
 let videos = document.getElementById("videos");
@@ -108,7 +140,7 @@ async function getVideos(){
                     thumbnail.appendChild(lock_open);
                     thumbnail.style.background = "#27ae60";
                     thumbnail.addEventListener("click", ()=>{
-                        alert(`You video is publicly accessible from this link: https://vodbox.herokuapp.com/v?watch=${video.filename}`);
+                        prompt("Your video is publicly accessible from this link:", `https://vodbox.herokuapp.com/v?watch=${video.filename}`);
                     })
                 }else{
                     let lock_closed = document.createElement("ion-icon");
