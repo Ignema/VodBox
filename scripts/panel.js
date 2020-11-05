@@ -186,16 +186,41 @@ async function getVideos(){
 
                 let link = document.createElement("a");
                 link.setAttribute('href', "#");
-                link.setAttribute('onclick', `document.getElementById("${index}").submit();`);
+                link.setAttribute('onclick', `document.getElementById("del-${index}").submit();`);
 
                 link.appendChild(close);
 
                 let del = document.createElement("form");
-                del.setAttribute('id',`${index}`);
+                del.setAttribute('id',`del-${index}`);
                 del.setAttribute('action', `/files/${video._id}?_method=DELETE`);
                 del.setAttribute('method', "POST");  
                 
                 del.appendChild(link);
+
+                let share = document.createElement("ion-icon");
+                share.setAttribute('name',"share-social-outline");
+                share.setAttribute('id',"share");
+
+                let share_link = document.createElement("a");
+                share_link.setAttribute('href', "#");
+                share_link.setAttribute('onclick', `document.getElementById("share-${index}").submit();`);
+
+                share_link.appendChild(share);
+
+                let share_form = document.createElement("form");
+                share_form.setAttribute('id',`share-${index}`);
+                share_form.setAttribute('action', `/toggle/${video.filename}`);
+                share_form.setAttribute('method', "GET");  
+                
+                share_form.appendChild(share_link);
+
+                // share.addEventListener("click",()=>{
+                //     if(!video.metadata.public){
+                //         alert("Your video is now private");
+                //     }else{
+                //         alert(`You video is now publicly accessible from this link: https://vodbox.heroku.app/play?watch=${video.filename}`)
+                //     }
+                // })
 
                 let ctrl = document.createElement("div");
                 ctrl.setAttribute('name',"ctrl");
@@ -217,6 +242,7 @@ async function getVideos(){
                 vid.appendChild(date);
                 ctrl.appendChild(play);
                 ctrl.appendChild(del);
+                ctrl.appendChild(share_form);
                 vid.appendChild(ctrl);
 
 

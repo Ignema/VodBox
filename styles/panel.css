@@ -263,24 +263,28 @@ margin-top: 1rem;
 
 }
 
-#play,#close{
-
-
+#play{
     color: #34495e;
-
     font-size: 4rem;
-
     cursor: pointer;
+    margin-right: 1rem;
+}
 
+#share{
+  color: #34495e;
+  font-size: 3rem;
+  cursor: pointer;
+  margin-right: 1rem;
 }
 
 #close{
-
-margin-right: 1rem;
-
+  color: #34495e;
+  font-size: 4rem;
+  cursor: pointer;
+  margin-right: 1rem;
 }
 
-#play:hover,#close:hover{
+#play:hover,#close:hover,#share:hover{
 
     color: #3498db;
 
@@ -288,7 +292,7 @@ margin-right: 1rem;
 
 }
 
-#play:active,#close:active{
+#play:active,#close:active, #share:active{
 
     color: white;
 

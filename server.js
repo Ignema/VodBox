@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
 const methodOverride = require('method-override');
 
-const {login, refresh, verify} = require('./jwt');
+const {login, refresh, verify, skip} = require('./jwt');
 
 const multer = require("multer");;
 const GridFsStorage = require("multer-gridfs-storage");
@@ -55,7 +55,7 @@ const storage = new GridFsStorage({
          const fileInfo = {
            filename: filename,
            bucketName: 'videos',
-           metadata: {name: path.basename(file.originalname,path.extname(file.originalname)), extension: path.extname(file.originalname)}
+           metadata: {name: path.basename(file.originalname,path.extname(file.originalname)), extension: path.extname(file.originalname), public: false}
          };
          resolve(fileInfo);
        });
@@ -75,7 +75,7 @@ app.use(express.urlencoded({extended: false}));
 
 
 
-app.get("/",(res)=>{
+app.get("/", skip, (req, res)=>{
     res.sendFile( __dirname + "/index.html");
 });
 
@@ -137,6 +137,57 @@ app.get('/video/:filename', verify, (req, res) => {
 
     });
   });
+
+  app.get('/toggle/:filename', verify, (req, res) => {
+
+    gfs.files.findOne({  filename: req.params.filename }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: 'No file exists'
+        });
+      }
+
+      gfs.files.updateOne(
+        { 'filename': file.filename },
+        { $set: { 'metadata.public': !file.metadata.public } }
+      )
+
+        if(!file.metadata.public){
+          return res.status(200).json({
+            link: `https://vodbox.herokuapp.com/play?watch=${file.filename}`,
+            redirect: 'https://vodbox.herokuapp.com/panel'
+          });
+        }else{
+          return res.status(200).json({
+            link: `the video is no longer public`,
+            redirect: 'https://vodbox.herokuapp.com/panel'
+          });
+        }
+    })
+  });
+
+  app.get('/play', (req, res) => {
+    gfs.files.findOne({ filename: req.query.watch }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0 || !file.metadata.public) {
+        return res.status(404).json({
+          err: 'Sorry, we couldn\'t find the video you were looking for :('
+        });
+      }
+    if(file.contentType.substring(0,file.contentType.lastIndexOf('/')) === 'video'){ 
+        // Read output to browser
+        res.setHeader('Content-Type', 'video/mp4');
+        const readstream = gfs.createReadStream(file.filename);
+        readstream.pipe(res);
+      } else {
+        res.status(404).json({
+          err: 'Not a video'
+        });
+      }
+    });
+  });
+
 
 app.delete('/files/:id', verify, (req, res) => {
     gfs.remove({ _id: req.params.id, root: 'videos' }, (err, gridStore) => {
