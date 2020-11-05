@@ -17,12 +17,11 @@ const multer = require("multer");;
 const GridFsStorage = require("multer-gridfs-storage");
 const Grid = require('gridfs-stream');
 
-
+const monq = require('monq');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI;
-
 
 
 mongoose.connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true }).then(()=>{
@@ -65,7 +64,15 @@ const storage = new GridFsStorage({
  
 const upload = multer({ storage });
 
+// -----------------------------------------
 
+const client = monq(mongoURI);
+
+let queue = client.queue('uploads');
+ 
+queue.enqueue('upload');
+
+// -----------------------------------------
 
 app.use(express.static(__dirname));
 app.use(bodyParser.json())
@@ -87,8 +94,15 @@ app.get("/panel", verify, (req,res)=>{
   res.sendFile( __dirname + "/pages/panel.html");
 });
 
-app.post('/upload', verify, upload.single('file'), (req, res) => {
-  res.redirect('back');
+app.post('/upload', verify, (req, res) => {
+  let worker = client.worker(['uploads']);
+  worker.register({
+      upload: function (params, callback) {
+            upload.single('file')(req, res, ()=>{});
+            res.redirect("back");
+      }
+  }); 
+  worker.start();
 });
 
 app.get('/files', verify, (req, res) => {
@@ -153,21 +167,11 @@ app.get('/video/:filename', verify, (req, res) => {
         { $set: { 'metadata.public': !file.metadata.public } }
       )
 
-        if(!file.metadata.public){
-          return res.status(200).json({
-            link: `https://vodbox.herokuapp.com/play?watch=${file.filename}`,
-            redirect: 'https://vodbox.herokuapp.com/panel'
-          });
-        }else{
-          return res.status(200).json({
-            link: `the video is no longer public`,
-            redirect: 'https://vodbox.herokuapp.com/panel'
-          });
-        }
+      return res.redirect("back");
     })
   });
 
-  app.get('/play', (req, res) => {
+  app.get('/v', (req, res) => {
     gfs.files.findOne({ filename: req.query.watch }, (err, file) => {
       // Check if file
       if (!file || file.length === 0 || !file.metadata.public) {

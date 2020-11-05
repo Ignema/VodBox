@@ -10,14 +10,11 @@ var span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal
 upload.onclick = function() {
+  file_title.style.display = "none";
   modal.style.display = "block";
-  file.setAttribute('data-before', 'Choose a video');
+  file.setAttribute('data-before', "Choose the video you want to upload...");
+  file.style.display = "block";
   file.style.color = "transparent";
-}
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
@@ -27,23 +24,46 @@ window.onclick = function(event) {
   }
 }
 
+var form = document.getElementById("modal-form");
 var file = document.getElementsByClassName("file")[0];
+var file_title = document.getElementById("file_title");
+
+const allowed_size_mb = 100;
 
 file.onchange = function () {
 
-    var input = this.files[0];
+    let input = this.files[0];
 
     if (input) {
 
-        file.style.color = "white";
+        if(input.size > allowed_size_mb*1024*1024) {
+			alert('Error : Exceeded size');
+			return;
+		}
+        // file.style.color = "white";
+        // file.setAttribute('data-before', 'Your file name: ');
+        file.style.display="none";
+        file_title.style.display="block";
+        console.log(input)
+        file_title.innerHTML= input.name;
 
-        file.setAttribute('data-before', '');
-        
     } else {
         alert("Please select a file.");
     }
 
 };
+
+form.onsubmit = () => {
+
+    Array.from(document.body.children).forEach((child)=>{
+        child.style.display="none";
+    })
+
+    document.body.style.background = "#454a59";
+    let loading = document.createElement("div");
+    loading.id = "loading";
+    document.body.appendChild(loading);    
+}
 
 let videos = document.getElementById("videos");
 
@@ -74,32 +94,28 @@ async function getVideos(){
 
             for(video of data){
 
+                let thumbnail = document.createElement("div");
+                thumbnail.setAttribute('id',"thumbnail");
+
                 let icon = document.createElement("ion-icon");
                 icon.setAttribute('name',"image");
                 icon.style.zIndex = "100";
-
-                let thumbnail = document.createElement("div");
-                thumbnail.setAttribute('id',"thumbnail");
-                
-                // const videoToThumb = new VideoToThumb(`/video/${video.filename}`);
-
-                let image = new Image();
-
-                // videoToThumb.load().done((img)=>{
-
-                //     image.src = img;
-                //     image.className = "thumb";
-
-                // });
-
-                image.addEventListener("click",()=>{
-
-                    window.open(image.src,'_blank' );
-
-                })
                    
-                thumbnail.appendChild(image);
-                thumbnail.appendChild(icon);
+                if(video.metadata.public){
+                    let lock_open = document.createElement("ion-icon");
+                    lock_open.setAttribute('name',"lock-open");
+                    lock_open.style.zIndex = "100";
+                    thumbnail.appendChild(lock_open);
+                    thumbnail.style.background = "#27ae60";
+                    thumbnail.addEventListener("click", ()=>{
+                        alert(`You video is publicly accessible from this link: https://vodbox.herokuapp.com/v?watch=${video.filename}`);
+                    })
+                }else{
+                    let lock_closed = document.createElement("ion-icon");
+                    lock_closed.setAttribute('name',"lock-closed");
+                    lock_closed.style.zIndex = "100";
+                    thumbnail.appendChild(lock_closed);
+                }
 
                 let title = document.createElement("div");
                 title.setAttribute('id',"video-title");
@@ -180,13 +196,16 @@ async function getVideos(){
 
                 })
 
+                let play_div = document.createElement("div");
+                play_div.style.marginLeft="1rem";
+                
                 let close = document.createElement("ion-icon");
                 close.setAttribute('name',"close");
                 close.setAttribute('id',"close");
 
                 let link = document.createElement("a");
                 link.setAttribute('href', "#");
-                link.setAttribute('onclick', `document.getElementById("del-${index}").submit();`);
+                link.setAttribute('onclick', `if (confirm('Are you sure you want to delete this video?')) {document.getElementById("del-${index}").submit(); }`);
 
                 link.appendChild(close);
 
@@ -214,14 +233,6 @@ async function getVideos(){
                 
                 share_form.appendChild(share_link);
 
-                // share.addEventListener("click",()=>{
-                //     if(!video.metadata.public){
-                //         alert("Your video is now private");
-                //     }else{
-                //         alert(`You video is now publicly accessible from this link: https://vodbox.heroku.app/play?watch=${video.filename}`)
-                //     }
-                // })
-
                 let ctrl = document.createElement("div");
                 ctrl.setAttribute('name',"ctrl");
                 ctrl.setAttribute('id',"ctrl");
@@ -240,7 +251,8 @@ async function getVideos(){
                 vid.appendChild(length);
                 vid.appendChild(bar());
                 vid.appendChild(date);
-                ctrl.appendChild(play);
+                play_div.appendChild(play);
+                ctrl.appendChild(play_div);
                 ctrl.appendChild(del);
                 ctrl.appendChild(share_form);
                 vid.appendChild(ctrl);

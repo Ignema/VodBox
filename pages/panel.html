@@ -64,16 +64,15 @@
 
     <!-- Modal content -->
     <div class="modal-content">
-        <ion-icon class="close" name="close-circle"></ion-icon>
-      <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input class="file" type="file" id="file" name="file" accept="video/*">
+      <form id="modal-form" action="/upload" method="POST" enctype="multipart/form-data">
+        <input class="file" type="file" id="file" name="file" accept="video/*" data-before="Choose the video you want to upload...">
+        <h2 id="file_title"></h2>
         <input class="submit" value="submit" type="submit">
       </form>
     </div>
     
   </div>
 
- 
   <script src="../scripts/panel.js" ></script>
 </body>
 </html>
