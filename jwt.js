@@ -102,6 +102,8 @@ exports.verify = function(req, res, next){
     // next();
 }
 
+// TODO make skip function work to skip admin login if user is already connected
+
 exports.skip = function(req, res, next){
     let accessToken = req.cookies.jwt
     console.log("We entered skip middleware")

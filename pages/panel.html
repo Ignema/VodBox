@@ -4,20 +4,31 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js">
-<!--<![endif]-->
+  <!--<![endif]-->
 
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Console</title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles/panel.css" />
-    <script type="module" src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule="" src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.js"></script>
-</head>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule=""
+      src="https://unpkg.com/ionicons@5.1.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.js"
+      integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
 
-<body>
+  <body>
     <!--[if lt IE 7]>
       <p class="browsehappy">
         You are using an <strong>outdated</strong> browser. Please
@@ -25,23 +36,42 @@
       </p>
     <![endif]-->
     <div id="head">
-        <div id="menu">
-            <ion-icon class="menu" name="apps"></ion-icon>
+      <div id="menu">
+        <ion-icon class="menu" name="apps"></ion-icon>
 
-            <div id="title">
-                <h1>Video Console</h1>
-            </div>
+        <div id="title">
+          <h1>Video Console</h1>
         </div>
-        <div id="buttons">
-            <ion-icon class="button" name="search" style="background-color: #2980b9;"></ion-icon>
-            <ion-icon  id="upload" class="button" name="add-circle" style="background-color: #e74c3c;"></ion-icon>
-            <ion-icon class="button" name="hammer" style="background-color: #f39c12;"></ion-icon>
-            <a href="/"><ion-icon class="button" name="arrow-undo" style="background-color: #27ae60;"></ion-icon></a>
-        </div>
+      </div>
+      <div id="buttons">
+        <ion-icon
+          class="button"
+          name="search"
+          style="background-color: #2980b9"
+        ></ion-icon>
+        <ion-icon
+          id="upload"
+          class="button"
+          name="add-circle"
+          style="background-color: #e74c3c"
+        ></ion-icon>
+        <ion-icon
+          class="button"
+          name="hammer"
+          style="background-color: #f39c12"
+        ></ion-icon>
+        <a href="/"
+          ><ion-icon
+            class="button"
+            name="arrow-undo"
+            style="background-color: #27ae60"
+          ></ion-icon
+        ></a>
+      </div>
     </div>
 
     <div id="videos">
-        <!-- <div id="video">
+      <!-- <div id="video">
             <div id="thumbnail"><ion-icon name="image"></ion-icon></div>
            
             <div id="video-title">Video Title</div>
@@ -60,19 +90,63 @@
     </div>
 
     <!-- The Modal -->
-<div id="myModal" class="modal">
+    <div id="myModal" class="modal">
+      <script>
+        // Making SOCKET connection
+        var socket = io.connect("/");
 
-    <!-- Modal content -->
-    <div class="modal-content">
-      <form id="modal-form" action="/upload" method="POST" enctype="multipart/form-data">
-        <input class="file" type="file" id="file" name="file" accept="video/*" data-before="Choose the video you want to upload...">
-        <h2 id="file_title"></h2>
-        <input class="submit" value="submit" type="submit">
-      </form>
+        function uploadVideo(form) {
+
+          Array.from(document.body.children).forEach((child)=>{
+              child.style.display="none";
+          })
+          document.body.style.background = "#454a59";
+          let loading = document.createElement("div");
+          loading.id = "loading";
+          document.body.appendChild(loading);
+
+          var file = document.getElementById('file').files[0];
+          var originalFilename = file.name;
+          var filetype = file.type;
+          console.log("originalFilename: ", originalFilename, "filetype: ", filetype)
+          var reader = new FileReader();
+          var fileByteArray = [];
+          console.log("file: ", file)
+          reader.readAsArrayBuffer(file);
+          console.log("reader: ", reader)
+          reader.onloadend = function (event) {
+              if (event.target.readyState == FileReader.DONE) {
+                var arrayBuffer = event.target.result, array = new Uint8Array(arrayBuffer);
+                console.log("arrayBuffer: ", arrayBuffer)
+                console.log("array: ", array)
+                for (var i = 0; i < array.length; i++) {
+                    fileByteArray.push(array[i]);
+                  }
+                console.log("fileByteArray: ", fileByteArray)
+                for(i = 0; i< Math.ceil(fileByteArray.length / 100000) ; i++){
+                  socket.emit("file", fileByteArray.slice(i*100000, (i+1)*100000));
+                }
+                socket.emit("completed", {originalname: originalFilename, filetype: filetype});
+              }
+          }
+
+          socket.on("refresh", () => {
+            window.location = window.location.href.split("?")[0];
+          });
+          
+          return false;
+        }
+      </script>
+
+      <div class="modal-content">
+        <form id="modal-form" onsubmit="return uploadVideo(this);" enctype="multipart/form-data">
+          <input class="file" type="file" id="file" name="file" accept="video/*" data-before="Choose the video you want to upload..."/>
+          <h2 id="file_title"></h2>
+          <input class="submit" value="submit" type="submit" />
+        </form>
+      </div>
     </div>
-    
-  </div>
 
-  <script src="../scripts/panel.js" ></script>
-</body>
+    <script src="../scripts/panel.js"></script>
+  </body>
 </html>
