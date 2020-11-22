@@ -1,3 +1,5 @@
+console.log = function(){}; // Uncomment this line to remove all console logs if you're pushing to production!
+
 require("dotenv").config();
 
 const express = require("express");
@@ -37,6 +39,7 @@ connection.once("open", () => {
   gfs.collection("videos");
 });
 
+app.set('view engine', 'ejs');
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -91,7 +94,7 @@ app.get("/video/:filename", verify, (req, res) => {
     }
     if (file.contentType.substring(0, file.contentType.lastIndexOf("/")) === "video") {
       // Read output to browser
-      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader("Content-Type", file.contentType);
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
     } else {
@@ -120,7 +123,7 @@ app.get("/toggle/:filename", verify, (req, res) => {
   });
 });
 
-app.get("/v", (req, res) => {
+app.get("/src", (req, res) => {
   gfs.files.findOne({ filename: req.query.watch }, (err, file) => {
     // Check if file
     if (!file || file.length === 0 || !file.metadata.public) {
@@ -128,12 +131,9 @@ app.get("/v", (req, res) => {
         err: "Sorry, we couldn't find the video you were looking for :(",
       });
     }
-    if (
-      file.contentType.substring(0, file.contentType.lastIndexOf("/")) ===
-      "video"
-    ) {
+    if (file.contentType.substring(0, file.contentType.lastIndexOf("/")) === "video") {
       // Read output to browser
-      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader("Content-Type", file.contentType);
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
     } else {
@@ -143,6 +143,29 @@ app.get("/v", (req, res) => {
     }
   });
 });
+
+app.get("/v", (req, res) => {
+  gfs.files.findOne({ filename: req.query.watch }, (err, file) => {
+    // Check if file
+    if (!file || file.length === 0) {
+      return res.render("video", {'title': "VodBox", 'public': false});
+    }
+    if (!file.metadata.public) {
+      return res.render("video", {'title': file.metadata.name, 'public': false});
+    }
+    if (file.contentType.substring(0, file.contentType.lastIndexOf("/")) === "video") {
+      res.render("video", {'title': file.metadata.name, 'public': true , 'video': "src?watch=" + file.filename, 'type': file.contentType, 'filename': file.filename});
+    } else {
+      return res.render("video", {'title': file.metadata.name, 'public': false});
+    }
+  });
+});
+
+app.get("/poster", (req, res)=>{
+  res.setHeader("Content-Type", "image/png");
+  res.sendFile(__dirname + "/assests/poster.png");
+})
+
 
 app.delete("/files/:id", verify, (req, res) => {
   gfs.remove({ _id: req.params.id, root: "videos" }, (err, gridStore) => {

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title><%=title%></title>
+        <meta name="description" content="Watch and Share Videos on VodBox" />
+
+        <% if (public) { %>  
+        <meta property="og:site_name" content="VodBox" />
+        <meta property="og:title" content="<%=title%>" />
+        <meta property="og:description" content="Watch and Share Videos on VodBox" />
+        <meta property="og:type" content="video.other" />
+        <meta property="og:url" content="<%='https://vodbox.herokuapp.com/v?watch=' + filename%>" />
+
+        <meta property="og:image" content="https://vodbox.herokuapp.com/poster" />
+
+        <meta property="og:video" content="<%='https://vodbox.herokuapp.com/' + video%>" />
+        <meta property="og:video:type" content="<%=type%>" />
+
+        <meta name="twitter:site" content="@VodBox">
+        <meta name="twitter:card" content="player">
+        <meta name="twitter:image" content="https://vodbox.herokuapp.com/poster">
+        <meta name="twitter:player" content="<%='https://vodbox.herokuapp.com/' + video%>">
+        <% } %>
+
+        <meta name="theme-color" content="#2c3e50">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../styles/video.css">
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header>
+            <div id="logo">
+                <img src="../assets/logo.png" alt="VodBox Logo">
+                <h1 id="brand">VodBox</h1>
+            </div>
+            <a href="/"><input type="button" name="login" value="login"></button></a>
+        </header>
+        <div id="main">
+        <div id="bar"></div>
+        <div id="box">
+            <% if (public) { %>
+            <video controls autoplay>
+                <source src=<%=video%> type=<%= type %>>
+            </video>
+            <% } else { %>
+                <h1 id="error">the video you're looking for is either private or doesn't exist</h1>
+            <% } %>
+        </div>
+        </div>
+        <footer>
+            <p id="footer-p-1">brought to you by</p>
+            <p id="footer-p-2">Yassir Douslimi</p>
+        </footer>
+    </body>
+</html>

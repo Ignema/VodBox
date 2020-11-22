@@ -26,6 +26,7 @@
       integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg=="
       crossorigin="anonymous"
     ></script>
+    <script>console.log = function(){};</script>
   </head>
 
   <body>
@@ -111,7 +112,6 @@
           console.log("originalFilename: ", originalFilename, "filetype: ", filetype)
           var reader = new FileReader();
           var fileByteArray = [];
-          console.log("file: ", file)
           reader.readAsArrayBuffer(file);
           console.log("reader: ", reader)
           reader.onloadend = function (event) {
