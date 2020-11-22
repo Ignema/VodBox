@@ -1,10 +1,10 @@
-console.log = function(){}; // Uncomment this line to remove all console logs if you're pushing to production!
+// console.log = function(){}; // Uncomment this line to remove all console logs if you're pushing to production!
 
 require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
-const fs = require("fs");
+const { Readable } = require("stream")
 const crypto = require("crypto");
 const bcrypt = require("bcrypt"); // Will be used in /register
 const mongoose = require("mongoose");
@@ -22,8 +22,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI;
 
-mongoose
-  .connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true })
+mongoose.connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => {
     console.log("Connected to database...");
   })
@@ -163,7 +162,7 @@ app.get("/v", (req, res) => {
 
 app.get("/poster", (req, res)=>{
   res.setHeader("Content-Type", "image/png");
-  res.sendFile(__dirname + "/assests/poster.png");
+  res.sendFile(__dirname + "/assets/poster.png");
 })
 
 
@@ -182,8 +181,6 @@ let server = app.listen(port, () => {
 
 let io = socket(server);
 
-var vod;
-
 io.on("connection", (socket) => {
   console.log("Socket connexion was established...");
 
@@ -195,36 +192,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("completed", (data) => {
-    fs.writeFileSync(
-      "./.temp/vod.mp4",
-      Buffer.from(file.flat(Infinity)),
-      { flag: "w" },
-      (err) => {
-        console.log("[fs.writeFile] ERROR: ", err);
-      }
-    );
 
     const writestream = gfs.createWriteStream(generateOptions(data["originalname"], data["filetype"]));
-      fs.createReadStream("./.temp/vod.mp4").pipe(writestream);
+    Readable.from(Buffer.from(file.flat(Infinity))).pipe(writestream);
 
-      writestream.on('finish', function (vod) {
-        console.log("Finished uploading file!");
-        fs.unlink('./.temp/vod.mp4', (err)=>{
-          if(err){
-            console.log("[fs.unlink] ERROR: ", err);
-          }
-        console.log("Removing junk files...");
-        console.log("Refreshing client page...");
+    writestream.on('finish', () => {
+      console.log("Finished uploading file!");
+      console.log("Refreshing client page...");
         io.emit("refresh");
-        })
-      });
-      
-    // fs.readFile("./.temp/vod.mp4", (err, data) => {
-    //   if (err) {
-    //     console.log("[fs.readFile] ERROR: ", err);
-    //   }
-    // });
-   
+    });
   });
 });
 
