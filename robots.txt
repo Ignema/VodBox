@@ -1,0 +1,7 @@
+
+# Notice: No one other than the Ensias IT club members has the right
+# to pentest this website or search for vulnerabilities in it. If you
+# are an IT member, please enjoy your stay. Happy Hacking!
+
+User-agent: *
+Disallow: /alt

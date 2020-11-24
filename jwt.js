@@ -17,7 +17,7 @@ exports.login = function(req, res){
     
     // Neither do this!
     if (!username || !password || !users[username] || users[username].password !== password){
-        return res.status(401).send()
+        return res.status(401).redirect("/");
     }
 
     //use the payload to store information about the user such as username, user role, etc.

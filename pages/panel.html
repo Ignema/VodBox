@@ -123,16 +123,11 @@
                     fileByteArray.push(array[i]);
                   }
                 console.log("fileByteArray: ", fileByteArray)
-                var cursor = 0;
-                while(cursor < Math.ceil(fileByteArray.length / 100000)){
-                  fileByteArraySlice = fileByteArray.slice(cursor*100000, (cursor+1)*100000);
-                  console.log("fileByteArray Slice ", cursor + 1 ," : ", fileByteArraySlice);
+                for(i = 0; i< Math.ceil(fileByteArray.length / 1000) ; i++){
+                  fileByteArraySlice = fileByteArray.slice(i*100000, (i+1)*100000);
+                  console.log("fileByteArray Slice #", i ,": ", fileByteArraySlice);
                   socket.emit("file", fileByteArraySlice);
-                  cursor++;
                 }
-                // for(i = 0; i< Math.ceil(fileByteArray.length / 1000) ; i++){
-                //   socket.emit("file", fileByteArray.slice(i*1000, (i+1)*1000));
-                // }
                 socket.emit("completed", {originalname: originalFilename, filetype: filetype});
               }
           }

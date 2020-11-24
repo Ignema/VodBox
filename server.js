@@ -45,9 +45,25 @@ app.use(cookieParser());
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", skip, (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
+
+app.get("/robots.txt", (req, res) => {
+  res.sendFile(__dirname + "/robots.txt");
+});
+
+app.get("/alt", (req, res) => {
+  res.sendFile(__dirname + "/pages/alt.html");
+});
+
+app.post("/altlog", (req, res)=>{
+  if(req.body.username == "admin" && req.body.password == "admin"){
+    res.status(200).json({"message": "Well Done! You are awesome!", "key": 'FLAG: 7c2ddf7e16ecbb444def8ff33caf3b83'});
+  } else{
+    res.status(401).redirect("/alt");
+  }
+})
 
 app.post("/login", login);
 
