@@ -127,7 +127,7 @@
           reader.readAsArrayBuffer(file);
           console.log("reader: ", reader)
 
-          var load = 0, cursor = 1, chunk = 1000;
+          var load = 0, cursor = 1, chunk = 2000000;
           reader.onloadend = function (event) {
             if (event.target.readyState == FileReader.DONE) {
               var arrayBuffer = event.target.result, array = new Uint8Array(arrayBuffer);
@@ -136,7 +136,15 @@
               for (var i = 0; i < array.length; i++) {
                   fileByteArray.push(array[i]);
                 }
-              socket.emit("file", {"slice": fileByteArray.slice(load,load+chunk), "number": cursor});
+              fetch("/upload", {
+                headers: { 
+                  'Content-Type':'application/json'
+                },
+                method: "POST", 
+                body: JSON.stringify({"slice": fileByteArray.slice(load,load+chunk), "number": cursor})
+                }
+              );
+              // socket.emit("file", {"slice": fileByteArray.slice(load,load+chunk), "number": cursor});
               load = load + chunk; 
               cursor++;
             }
@@ -147,11 +155,18 @@
             loadingBar.style.width = `${(number / Math.ceil(fileByteArray.length/chunk))*100}%`;
             chunks.innerHTML = `${((number-1)*chunk)/1000000} / ${fileByteArray.length/1000000} Mb`;
             if(load < fileByteArray.length){
-              socket.emit("file", {"slice": fileByteArray.slice(load,load+chunk), "number": cursor});
+              fetch("/upload", {
+                headers: { 
+                  'Content-Type':'application/json'
+                },
+                method: "POST", 
+                body: JSON.stringify({"slice": fileByteArray.slice(load,load+chunk), "number": cursor})
+                }
+              );
               load = load + chunk; 
               cursor++;
             } else{
-              chunks.innerHTML = `${fileByteArray.length} / ${fileByteArray.length}`;
+              chunks.innerHTML = `${fileByteArray.length/1000000} / ${fileByteArray.length/1000000} Mb`;
               socket.emit("completed", {originalname: originalFilename, filetype: filetype});
             }
           });

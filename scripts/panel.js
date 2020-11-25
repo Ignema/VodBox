@@ -141,9 +141,9 @@ async function getVideos(){
                 field.appendChild(file_type);
                 field.appendChild(storage);
             
-                let length = document.createElement("div");
-                length.setAttribute('id',"length");
-                length.innerHTML = "Calculating...";
+                // let length = document.createElement("div");
+                // length.setAttribute('id',"length");
+                // length.innerHTML = "Calculating...";
                 
 
                 let date = document.createElement("div");
@@ -164,16 +164,16 @@ async function getVideos(){
                 frame.height = "500";
                 frame.controls = true;
 
-                frame.preload = 'metadata'
+                // frame.preload = 'metadata'
 
-                frame.onloadedmetadata = function () {
+                // frame.onloadedmetadata = function () {
 
-                    let temp = new Date(0);
-                    temp.setSeconds(frame.duration);
-                    let time = temp.toISOString().substr(11, 8);
+                //     let temp = new Date(0);
+                //     temp.setSeconds(frame.duration);
+                //     let time = temp.toISOString().substr(11, 8);
 
-                    length.innerHTML = time;
-                }      
+                //     length.innerHTML = time;
+                // }      
 
                 frame.appendChild(source);
 
@@ -243,8 +243,8 @@ async function getVideos(){
                 vid.appendChild(bar());
                 vid.appendChild(field);
                 vid.appendChild(bar());
-                vid.appendChild(length);
-                vid.appendChild(bar());
+                // vid.appendChild(length);
+                // vid.appendChild(bar());
                 vid.appendChild(date);
                 play_div.appendChild(play);
                 ctrl.appendChild(play_div);

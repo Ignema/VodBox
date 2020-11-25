@@ -526,7 +526,7 @@ margin-top: 1rem;
   .progress-moved .progress-bar2 {
     width: 0%; 
     background-color:#16a085;  
-    animation: progressAnimation 2s;
+    animation: progressAnimation 6s;
   }
 
   .chunks{

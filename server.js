@@ -40,7 +40,7 @@ connection.once("open", () => {
 
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '120mb'}));
 app.use(cookieParser());
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: false }));
@@ -197,16 +197,33 @@ let server = app.listen(port, () => {
 
 let io = socket(server);
 
+var file = [];
+
 io.on("connection", (socket) => {
   console.log("Socket connexion was established...");
 
-  var file = [];
+  app.post("/upload", (req, res)=>{
+    if(req.body){
+      console.log("Received fragment of file: ", req.body["slice"]);
+      file.push(req.body["slice"]);
+      io.emit("fragment", req.body["number"]);
+      res.status(204).send();
+    } else{
+      res.redirect("/panel");
+    }
+  })
 
-  socket.on("file", (data) => {
-    console.log("Received fragment of file: ", data["slice"]);
-    file.push(data["slice"]);
-    io.emit("fragment", data["number"]);
-  });
+  // app.post("/completed", (req, res)=>{
+
+  //   const writestream = gfs.createWriteStream(generateOptions(req.body["originalname"], req.body["filetype"]));
+  //   Readable.from(Buffer.from(file.flat(Infinity))).pipe(writestream);
+
+  //   writestream.on('finish', () => {
+  //     console.log("Finished uploading file!");
+  //     console.log("Refreshing client page...");
+  //     res.send("back");
+  //   });
+  // })
 
   socket.on("completed", (data) => {
 
@@ -217,9 +234,36 @@ io.on("connection", (socket) => {
       console.log("Finished uploading file!");
       console.log("Refreshing client page...");
       io.emit("refresh");
+      file = [];
     });
   });
 });
+
+// let io = socket(server);
+
+// io.on("connection", (socket) => {
+//   console.log("Socket connexion was established...");
+
+//   var file = [];
+
+//   socket.on("file", (data) => {
+//     console.log("Received fragment of file: ", data["slice"]);
+//     file.push(data["slice"]);
+//     io.emit("fragment", data["number"]);
+//   });
+
+//   socket.on("completed", (data) => {
+
+//     const writestream = gfs.createWriteStream(generateOptions(data["originalname"], data["filetype"]));
+//     Readable.from(Buffer.from(file.flat(Infinity))).pipe(writestream);
+
+//     writestream.on('finish', () => {
+//       console.log("Finished uploading file!");
+//       console.log("Refreshing client page...");
+//       io.emit("refresh");
+//     });
+//   });
+// });
 
 generateOptions = (originalname, filetype) => {
 
