@@ -22,7 +22,7 @@ body{
     justify-content: center;
     align-items: center;
 
-    height: 80vh;
+    height: 85vh;
 
     background-color: #2c3e50;
 
@@ -109,6 +109,8 @@ button{
 
     border-width: 0;
 
+    width: 25vw;
+
     padding: 1.5rem;
 
     color: white;
@@ -119,9 +121,15 @@ button{
     
     cursor: pointer;
 
+    transition: background-color .2s ease-in;
+
 }
 
-#exit{
+button:focus{
+    background-color: #107a65;
+}
+
+#register{
 
     background-color: #e74c3c;
 
@@ -139,3 +147,28 @@ button{
         margin-bottom: 3rem;
     }
 }
+
+@media screen and (max-width: 500px){
+
+    img {
+        margin-top: 10rem;
+    }
+
+    form {
+        height: 60vh;
+    }
+
+    button{
+        width: 40vw;
+    }
+
+    #bts{
+        display: flex;
+        flex-direction: column;
+    }
+
+    #register{
+        margin-left: 0;
+    }
+}
+

@@ -1,4 +1,4 @@
-// console.log = function(){}; // Uncomment this line to remove all console logs if you're pushing to production!
+console.log = function(){}; // Uncomment this line to remove all console logs if you're pushing to production!
 
 require("dotenv").config();
 
@@ -202,9 +202,10 @@ io.on("connection", (socket) => {
 
   var file = [];
 
-  socket.on("file", (part) => {
-    console.log("Received fragment of file: ", part);
-    file.push(part);
+  socket.on("file", (data) => {
+    console.log("Received fragment of file: ", data["slice"]);
+    file.push(data["slice"]);
+    io.emit("fragment", data["number"]);
   });
 
   socket.on("completed", (data) => {
@@ -215,7 +216,7 @@ io.on("connection", (socket) => {
     writestream.on('finish', () => {
       console.log("Finished uploading file!");
       console.log("Refreshing client page...");
-        io.emit("refresh");
+      io.emit("refresh");
     });
   });
 });

@@ -26,7 +26,7 @@
       integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg=="
       crossorigin="anonymous"
     ></script>
-    <!-- <script>console.log = function(){};</script> -->
+    <script>console.log = function(){};</script>
   </head>
 
   <body>
@@ -94,7 +94,7 @@
     <div id="myModal" class="modal">
       <script>
         // Making SOCKET connection
-        var socket = io.connect("/", {'force new connection': true });
+        var socket = io.connect("/");
 
         function uploadVideo(form) {
 
@@ -102,9 +102,21 @@
               child.style.display="none";
           })
           document.body.style.background = "#454a59";
-          let loading = document.createElement("div");
-          loading.id = "loading";
-          document.body.appendChild(loading);
+
+          let loadingContainer = document.createElement("div");
+          let loadingProgress = document.createElement("div");
+          let loadingBar = document.createElement("div");
+          let chunks = document.createElement("h2");
+
+          loadingContainer.className = "container";
+          loadingProgress.className = "progress2 progress-moved";
+          loadingBar.className = "progress-bar2";
+          chunks.className = "chunks";
+
+          loadingProgress.appendChild(loadingBar);
+          loadingContainer.appendChild(loadingProgress);
+          document.body.appendChild(loadingContainer);
+          document.body.appendChild(chunks);
 
           var file = document.getElementById('file').files[0];
           var originalFilename = file.name;
@@ -114,23 +126,35 @@
           var fileByteArray = [];
           reader.readAsArrayBuffer(file);
           console.log("reader: ", reader)
+
+          var load = 0, cursor = 1, chunk = 1000;
           reader.onloadend = function (event) {
-              if (event.target.readyState == FileReader.DONE) {
-                var arrayBuffer = event.target.result, array = new Uint8Array(arrayBuffer);
-                console.log("arrayBuffer: ", arrayBuffer)
-                console.log("array: ", array)
-                for (var i = 0; i < array.length; i++) {
-                    fileByteArray.push(array[i]);
-                  }
-                console.log("fileByteArray: ", fileByteArray)
-                for(i = 0; i< Math.ceil(fileByteArray.length / 1000) ; i++){
-                  fileByteArraySlice = fileByteArray.slice(i*100000, (i+1)*100000);
-                  console.log("fileByteArray Slice #", i ,": ", fileByteArraySlice);
-                  socket.emit("file", fileByteArraySlice);
+            if (event.target.readyState == FileReader.DONE) {
+              var arrayBuffer = event.target.result, array = new Uint8Array(arrayBuffer);
+              console.log("arrayBuffer: ", arrayBuffer)
+              console.log("array: ", array)
+              for (var i = 0; i < array.length; i++) {
+                  fileByteArray.push(array[i]);
                 }
-                socket.emit("completed", {originalname: originalFilename, filetype: filetype});
-              }
+              socket.emit("file", {"slice": fileByteArray.slice(load,load+chunk), "number": cursor});
+              load = load + chunk; 
+              cursor++;
+            }
           }
+
+          socket.on("fragment", (number) => {
+            console.log(`Received fragment number #${number}/${Math.ceil(fileByteArray.length/chunk)}!!`);
+            loadingBar.style.width = `${(number / Math.ceil(fileByteArray.length/chunk))*100}%`;
+            chunks.innerHTML = `${((number-1)*chunk)/1000000} / ${fileByteArray.length/1000000} Mb`;
+            if(load < fileByteArray.length){
+              socket.emit("file", {"slice": fileByteArray.slice(load,load+chunk), "number": cursor});
+              load = load + chunk; 
+              cursor++;
+            } else{
+              chunks.innerHTML = `${fileByteArray.length} / ${fileByteArray.length}`;
+              socket.emit("completed", {originalname: originalFilename, filetype: filetype});
+            }
+          });
 
           socket.on("refresh", () => {
             window.location = window.location.href.split("?")[0];
