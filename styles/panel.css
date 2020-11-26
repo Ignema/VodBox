@@ -152,6 +152,8 @@ border-radius:  0 12px 12px 0;
 
     background-color: #fafafa;
 
+    font-weight: 400;
+
     height: 7rem;
 
     width: 100%;
@@ -189,7 +191,7 @@ border-radius:  0 12px 12px 0;
 
     height: 7rem;
 
-    width: 10rem;
+    width: 40rem;
 
     cursor: pointer;
 
@@ -199,7 +201,7 @@ border-radius:  0 12px 12px 0;
 
 }
 
-/* #thumbnail:hover{
+#thumbnail:hover{
 
     opacity: 0.5;
 
@@ -208,7 +210,7 @@ border-radius:  0 12px 12px 0;
     transition: opacity, color .1s ease-in;
 
 
-} */
+}
 
 #thumbnail:active{
 
@@ -235,7 +237,7 @@ border-radius:  0 12px 12px 0;
 
 #video-title,.bar,#file-type,#storage,#length,#date{
 
-    margin:0 1rem 0 1rem;
+    margin:0 2rem 0 2rem;
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1.8rem;
@@ -246,15 +248,19 @@ border-radius:  0 12px 12px 0;
 #video-title{
 
   font-size: 1.5rem;
-  width: 20rem;
+  width: -webkit-fill-available;
   margin: 1rem;
 
 }
 
-#storage{
+/* #storage{
 
 margin-top: 1rem;
 
+} */
+
+#date{
+  width: -webkit-fill-available;
 }
 
 #play{
@@ -443,6 +449,11 @@ margin-top: 1rem;
   }
 
   @media screen and (max-width: 800px){
+
+    body{
+      overflow-y: scroll !important;
+    }
+
     #head{
       flex-direction: column;
       justify-content: space-around;
@@ -455,7 +466,7 @@ margin-top: 1rem;
       text-align: center;
     }
     #buttons{
-      padding: 2rem;
+      margin: 2rem 0;
     }
     #video{
       flex-direction: column;
@@ -464,7 +475,6 @@ margin-top: 1rem;
     #thumbnail{
       width: 100%;
       border-radius: 0;
-      height: 4.5rem;
       margin-bottom: 1rem;
     }
     /* ---------------- */
@@ -474,6 +484,10 @@ margin-top: 1rem;
     #video {
       height: auto;
       width: -1;
+    }
+
+    #video-title{
+      margin: 2rem;
     }
     #field{
       display: none;
@@ -499,10 +513,18 @@ margin-top: 1rem;
     }
   }
 
+@media screen and (max-width: 400px){
+ 
+
+  #ctrl{
+    flex-direction: column;
+  }
+}
+
   /* ------------------------------ */
 
   .container {
-    margin: 30rem auto 10rem auto;
+    margin: 20vh auto 10vh auto;
     width: 80%;
     text-align: center;
   }

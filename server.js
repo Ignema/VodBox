@@ -18,6 +18,7 @@ const methodOverride = require("method-override");
 const { login, refresh, verify, skip } = require("./jwt");
 
 const Grid = require("gridfs-stream");
+const { WriteStream } = require("fs");
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoURI = process.env.MONGO_URI;
@@ -147,10 +148,13 @@ app.get("/src", (req, res) => {
       });
     }
     if (file.contentType.substring(0, file.contentType.lastIndexOf("/")) === "video") {
-      // Read output to browser
+
       res.setHeader("Content-Type", file.contentType);
+      res.setHeader("Content-Length", file.length);
+
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
+
     } else {
       res.status(404).json({
         err: "Not a video",
@@ -197,44 +201,39 @@ let server = app.listen(port, () => {
 
 let io = socket(server);
 
-var file = [];
-
 io.on("connection", (socket) => {
   console.log("Socket connexion was established...");
 
-  app.post("/upload", (req, res)=>{
-    if(req.body){
-      console.log("Received fragment of file: ", req.body["slice"]);
-      file.push(req.body["slice"]);
-      io.emit("fragment", req.body["number"]);
-      res.status(204).send();
-    } else{
-      res.redirect("/panel");
+  let = writestream = null;
+  
+  socket.on("started", (data) => {
+
+    if(data["filetype"].substring(0, data["filetype"].lastIndexOf("/")) !== "video"){
+      io.emit("refresh");
+      return;
     }
-  })
 
-  // app.post("/completed", (req, res)=>{
+    console.log("Started video upload...");
 
-  //   const writestream = gfs.createWriteStream(generateOptions(req.body["originalname"], req.body["filetype"]));
-  //   Readable.from(Buffer.from(file.flat(Infinity))).pipe(writestream);
+    writestream = gfs.createWriteStream(generateOptions(data["originalname"], data["filetype"]));
 
-  //   writestream.on('finish', () => {
-  //     console.log("Finished uploading file!");
-  //     console.log("Refreshing client page...");
-  //     res.send("back");
-  //   });
-  // })
+    app.post("/upload", verify, (req, res)=>{
+      if(req.body){
+        console.log("Received fragment of file: ", req.body["slice"]);
+        writestream.write(Buffer.from(req.body["slice"].flat(Infinity)));
+        io.emit("fragment", req.body["number"]);
+        res.status(204).send();
+      } else{
+        res.redirect("/panel");
+      }
+    })
 
-  socket.on("completed", (data) => {
-
-    const writestream = gfs.createWriteStream(generateOptions(data["originalname"], data["filetype"]));
-    Readable.from(Buffer.from(file.flat(Infinity))).pipe(writestream);
-
-    writestream.on('finish', () => {
+    socket.on("completed", () => {
+      writestream.end();
+      writestream = null;
       console.log("Finished uploading file!");
       console.log("Refreshing client page...");
-      io.emit("refresh");
-      file = [];
+      io.emit("refresh"); 
     });
   });
 });

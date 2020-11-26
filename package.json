@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node --max-old-space-size=6000 server.js",
-    "nodemon": "nodemon --max-old-space-size=6000 server.js"
+    "nodemon": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
